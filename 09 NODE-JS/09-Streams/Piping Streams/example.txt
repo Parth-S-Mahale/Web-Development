@@ -1,0 +1,4 @@
+Hello from example.txt
+My name is Parth Sanjay Mahale
+Data Science and Machine Learning Enthusiasts
+My college name is VIIT, Pune.
