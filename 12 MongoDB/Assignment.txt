@@ -1,0 +1,337 @@
+Q1.What is the average Age of all users?
+Anwser:
+
+[
+  {
+    $group: {
+      _id: null,
+      averageAge: {
+        $avg: "$age"
+      } 
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q2.List the top 5 most common favorite fruits among the given dataset.
+Anwser:
+
+[
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      count: 1
+    }
+  },
+  {
+    $limit: 5
+  }
+]
+
+------------------------------------------------------------------------
+
+Q3. Find the total number of males and females.
+Anwser:
+
+[
+  {
+    $group: {
+      _id: "$gender",
+      count: {
+        $sum: 1
+      }
+    }
+  },
+
+  {
+    $sort: {
+      count: 1
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q4. Which country has the highest number of registered users?
+Anwser:
+
+[
+  {
+    $group: {
+      _id: "$company.location.country",
+      registeredUsers: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $sort: {
+      registeredUsers: -1
+    }
+  },
+  {
+    $limit: 1
+  }
+]
+
+------------------------------------------------------------------------
+
+Q5. List all unique eye colors present in the collection.
+Anwser:
+
+[
+  {
+    $group: {
+      _id: "$eyeColor"
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q6. Find the average number of tags per user.
+Anwser:
+
+[
+  {
+    $unwind: "$tags"
+  },
+  {
+    $group: {
+      _id: "$_id",
+      numberOfTags: {
+        $sum: 1
+      }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      averageNumberOfTags: {
+        $avg: "$numberOfTags"
+      }
+    }
+  }
+]
+
+********************************************************
+OR
+********************************************************
+
+[
+  {
+    $addFields: {
+      numberOfTags: {
+        $size: {
+          $ifNull: ["$tags", []]
+        }
+      }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      averageNumberOfTags: {
+        $avg: "$numberOfTags"
+      }
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q7. How many users have 'enim' as one of their tags?
+Anwser:
+
+[
+  {
+    $match: {
+      tags: "enim"
+    }
+  },
+  {
+    $count: "userWithEnimTag"
+  }
+]
+
+------------------------------------------------------------------------
+
+Q8. What are the names and age of the user who are inactive and have 'velit' as a tag?
+Anwser:
+
+[
+  {
+    $match: {
+      isActive: false,
+      tags: "velit"
+    }
+  },
+
+  {
+    $project: {
+      name: 1,
+      age: 1
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q9. How many users have the phone number starting with '+1 (940)'?
+Anwser:
+
+[
+  {
+    $match: {
+      "company.phone": /^\+1 \(940\)/
+    }
+  },
+
+  {
+    $count: 'userWithSpecialPhoneNumbers'
+  }
+]
+
+------------------------------------------------------------------------
+
+Q10. Who has registered most recently?
+Anwser:
+
+[
+  {
+    $sort: {
+      registered: -1
+    }
+  },
+  {
+    $limit: 4
+  },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      registered: 1
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q11. Categorize users by their favoriteFruit.
+Anwser: 
+
+[
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      categorize: {
+        $push: "$name"
+      }
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q12. How many users have 'ad' as the second tag in their list of tags?
+Anwser:
+
+[
+  {
+    $match: {
+      "tags.1": "ad"
+    }
+  },
+
+  {
+    $count: "secondTagAd"
+  }
+]
+
+------------------------------------------------------------------------
+
+Q13. Find users who have both 'enim' and 'id'as their tags.
+Anwser:
+
+[
+  {
+    $match: {
+      tags: { $all: ["enim", "id"] } 
+    }
+  }
+]
+
+------------------------------------------------------------------------
+
+Q14. List all the companies located in USA with their corresponding user count.
+Anwser:
+
+[
+  {
+    $match: {
+      "company.location.country": "USA"
+    }
+  },
+  {
+    $group: {
+      _id: "$company.title",
+      userCount: {
+        $sum: 1
+      }
+    }
+  }
+]
+
+Q15. $lookup Assignment:
+Answer: 
+
+[
+  {
+    $lookup: {
+      from: "authors",
+      localField: "author_id",
+      foreignField: "_id",
+      as: "author_details"
+    }
+  },
+  {
+    $addFields: {
+      author_details: {
+        $first: "$author_details"
+      }
+    }
+  }
+]
+
+********************************************************
+OR
+********************************************************
+
+[
+  {
+    $lookup: {
+      from: "authors",
+      localField: "author_id",
+      foreignField: "_id",
+      as: "author_details"
+    }
+  },
+  {
+    $addFields: {
+      author_details: {
+        $arrayElemAt: ["$author_details", 0]
+      }
+    }
+  }
+]
+
+
+
